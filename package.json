@@ -1,0 +1,14 @@
+{
+  "author": "Tom Selvi <tomselvi@gmail.com>",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "private": true,
+  "dependencies": {
+    "open-drone": "tomselvi/open-drone",
+    "node-berryimu": "tomselvi/node-berryimu",
+    "express": "4.13.3",
+    "socketio": "1.3.7"
+  }
+}
