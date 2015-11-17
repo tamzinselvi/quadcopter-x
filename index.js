@@ -1,8 +1,11 @@
-var app = require('express')();
+var express = require('express');
+var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
 server.listen(80);
+
+app.use('/open-drone', express.static(__dirname + '/modules/open-drone/client.js'));
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');

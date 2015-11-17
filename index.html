@@ -1,8 +1,13 @@
+<script>var module = {};</script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/open-drone/client.js"></script>
 <script>
   var socket = io.connect('http://localhost');
   var client = new ODClient(socket);
 </script>
-<input type="text" name="targetDZ" value=0>
-<input type="button" name="stop" value="Stop">
+<body>
+  <form action>
+    <input type="text" name="targetDZ" value=0>
+    <input type="button" name="stop" value="Stop">
+  </form>
+</body>
