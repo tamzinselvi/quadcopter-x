@@ -6,6 +6,7 @@ var io = require('socket.io')(server);
 server.listen(80);
 
 app.use('/open-drone', express.static(__dirname + '/modules/open-drone/client.js'));
+app.use('/js', express.static(__dirname + '/js'));
 
 app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html');
