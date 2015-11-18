@@ -5,11 +5,11 @@ var io = require('socket.io')(server);
 
 server.listen(80);
 
-app.use('/open-drone', express.static(__dirname + '/modules/open-drone/client.js'));
+app.use('/open-drone', express.static(__dirname + '/node_modules/open-drone'));
 app.use('/js', express.static(__dirname + '/js'));
 
 app.get('/', function (req, res) {
-  res.sendfile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/index.html');
 });
 
 var BerryIMU = require('node-berryimu');
@@ -17,6 +17,7 @@ var od = require('open-drone');
 
 var RPIOMotor = od.motors.RPIOMotor;
 var ODController = od.controller;
+var ODServer = od.server;
 var motors = {
   0: new RPIOMotor("FL", 17),
   1: new RPIOMotor("FR", 8),
@@ -29,6 +30,7 @@ setTimeout(function() {
   var sensometer = new BerryIMU();
   sensometer.initialize(function() {
     var controller = new ODController(motors, sensometer);
+    var server = new ODServer(io, controller);
     require('async').whilst(function() {
       return true;
     }, function(callback) {
