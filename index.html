@@ -2,20 +2,46 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/open-drone/client.js"></script>
 <script src="/js/jquery-1.11.3.min.js"></script>
+<script src="/js/gamecube_gamepad.js"></script>
 <script>
   var socket = io.connect('http://192.168.1.132');
   var client = new ODClient(socket);
-  $(document).ready(function() {
-    $("input[name=targetDZ]").on("input", function() {
-      client.setTargetDZ($(this).val());
-    });
-    $("input[name=start]").on("click", function() {
-      client.start();
-    });
-    $("input[name=stop]").on("click", function() {
-      client.stop();
-    });
-  });
+
+  var gc = new GamecubeGamepad(0);
+  var started = false;
+
+  gc.onJoystickY = function(val) {
+    val = Math.abs(val) >= this.deadzone ? val * 1400 : 0;
+    console.log("targetDZ: " + val);
+    client.setTargetDZ(val);
+  };
+
+  gc.onCStickY = function(val) {
+    val = Math.abs(val) >= this.deadzone ? val * 25 : 0;
+    console.log("targetPitch: " + val);
+    client.setTargetPitch(val);
+  };
+
+  gc.onCStickX = function(val) {
+    val = Math.abs(val) >= this.deadzone ? val * 25 : 0;
+    console.log("targetRoll: " + val);
+    client.setTargetRoll(val);
+  };
+
+  gc.onStart = function(val) {
+    if (val === true) {
+      if (started) client.stop();
+      else client.start();
+      started = !started;
+    };
+  };
+
+  function gamepadLoop() {
+    gc.update();
+    requestAnimationFrame(gamepadLoop);
+  }
+
+  gamepadLoop();
 </script>
 <body>
   <form action>
