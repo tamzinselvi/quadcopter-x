@@ -7,6 +7,7 @@ server.listen(80);
 
 app.use('/open-drone', express.static(__dirname + '/node_modules/open-drone'));
 app.use('/js', express.static(__dirname + '/js'));
+app.use('/svg', express.static(__dirname + '/svg'));
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');

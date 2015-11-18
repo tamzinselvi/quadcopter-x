@@ -1,7 +1,7 @@
 <script>module = {};</script>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/open-drone/client.js"></script>
-<script src="/js/jquery-1.11.3.min.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="/js/gamecube_gamepad.js"></script>
 <script>
   var socket = io.connect('http://192.168.1.132');
@@ -10,31 +10,104 @@
   var gc = new GamecubeGamepad(0);
   var started = false;
 
+  gc.onJoystickX = function(val) {
+    joystickX(val);
+  };
+
   gc.onJoystickY = function(val) {
+    joystickY(val);
     val = Math.abs(val) >= this.deadzone ? val * 1400 : 0;
     console.log("targetDZ: " + val);
     client.setTargetDZ(val);
   };
 
-  gc.onCStickY = function(val) {
-    val = Math.abs(val) >= this.deadzone ? val * 25 : 0;
-    console.log("targetPitch: " + val);
-    client.setTargetPitch(val);
-  };
-
   gc.onCStickX = function(val) {
+    cstickX(val);
     val = Math.abs(val) >= this.deadzone ? val * 25 : 0;
     console.log("targetRoll: " + val);
     client.setTargetRoll(val);
   };
 
+  gc.onCStickY = function(val) {
+    cstickY(val);
+    val = Math.abs(val) >= this.deadzone ? val * 25 : 0;
+    console.log("targetPitch: " + val);
+    client.setTargetPitch(val);
+  };
+
   gc.onStart = function(val) {
+    start(val);
     if (val === true) {
       if (started) client.stop();
       else client.start();
       started = !started;
     };
   };
+
+  client.socket.on('motor status', function(data) {
+    started = data;
+    motors(started);
+  });
+
+  function start(value) {
+    var color;
+    if (value) color = "#000";
+    else color = "transparent";
+    $('.start').css({backgroundColor: color});
+  }
+
+  function joystickX(value) {
+    var sel = $('.joystick .cursor');
+    sel.attr('x', value);
+    var top = (50 - (sel.attr("y") * 50));
+    var left = (50 + (value * 50));
+    sel.css({
+      top: top + "%",
+      left: left + "%",
+      transform: "translate(" + -left + "%, " + -top + "%)"
+    });
+  }
+
+  function joystickY(value) {
+    var sel = $('.joystick .cursor');
+    sel.attr('y', value);
+    var top = (50 - (value * 50));
+    var left = (50 + (sel.attr("x") * 50));
+    sel.css({
+      top: top + "%",
+      left: left + "%",
+      transform: "translate(" + -left + "%, " + -top + "%)"
+    });
+  }
+
+  function cstickX(value) {
+    var sel = $('.cstick .cursor');
+    sel.attr('x', value);
+    var top = (50 - (sel.attr("y") * 50));
+    var left = (50 + (value * 50));
+    sel.css({
+      top: top + "%",
+      left: left + "%",
+      transform: "translate(" + -left + "%, " + -top + "%)"
+    });
+  }
+
+  function cstickY(value) {
+    var sel = $('.cstick .cursor');
+    sel.attr('y', value);
+    var top = (50 - (value * 50));
+    var left = (50 + (sel.attr("x") * 50));
+    sel.css({
+      top: top + "%",
+      left: left + "%",
+      transform: "translate(" + -left + "%, " + -top + "%)"
+    });
+  }
+
+  function motors(value) {
+    if (value) $(".motor-status").addClass("on");
+    else $(".motor-status").removeClass("on");
+  }
 
   function gamepadLoop() {
     gc.update();
@@ -43,10 +116,87 @@
 
   gamepadLoop();
 </script>
+<style>
+  body {
+    background: linear-gradient(to bottom, #7d7e7d 0%,#0e0e0e 100%);
+    margin: 0;
+    padding: 0;
+  }
+  .start {
+    background-color: #fff;
+    position: fixed;
+    width: 6%;
+    height: 0;
+    padding-bottom: 3%;
+    top: 50%;
+    left: 50%;
+    border-style: solid;
+    transform: translate(-50%, -50%);
+  }
+  .joystick {
+    background-color: #fff;
+    position: fixed;
+    width: 25%;
+    height: 0;
+    padding-bottom: 25%;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    border-style: solid;
+  }
+  .cstick {
+    background-color: #fff;
+    position: fixed;
+    width: 25%;
+    height: 0;
+    padding-bottom: 25%;
+    top: 50%;
+    right: 5%;
+    transform: translateY(-50%);
+    border-style: solid;
+  }
+  .cursor {
+    position: absolute;
+    background-color: #000;
+    width: 20%;
+    height: 0;
+    padding-bottom: 20%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .motor-status-wrapper {
+    position: fixed;
+    left: 50%;
+    width: 20%;
+    height: 0;
+    top: 5%;
+    padding-bottom: 4.047109%;
+    transform: translateX(-50%);
+    background-color: #fff;
+  }
+
+  .motor-status {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('svg/motor-off.svg');
+  }
+
+  .motor-status.on {
+    background: url('svg/motor-on.svg');
+  }
+</style>
 <body>
-  <form action>
-    <input type="text" name="targetDZ" value=0>
-    <input type="button" name="start" value="Start">
-    <input type="button" name="stop" value="Stop">
-  </form>
+  <div class="start"></div>
+  <div class="joystick">
+    <div class="cursor" x="0" y="0"></div>
+  </div>
+  <div class="cstick">
+    <div class="cursor" x="0" y="0"></div>
+  </div>
+  <div class="motor-status-wrapper">
+    <div class="motor-status"></div>
+  </div>
 </body>
